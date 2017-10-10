@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="MybatisMapper.UserMapper">
+
+    <sql id="Base_Column_List">
+        t.ID  as id,
+        t.ROLE_ID as roleId,
+        t.STATUS as status,
+        t.REMARK as remark,
+        r.ROLE_NAME as roleName,
+        t.USER_NAME as userName,
+        t.PASSWORD as password,
+        t.REAL_NAME as realName,
+        t.PROV_CODE as provCode,
+        t.CITY_CODE as cityCode,
+        p.PROV_NAME as provName,
+        c.CITY_NAME as cityName,
+        t.USER_LEVEL as userLevel,
+        t.TELEPHONE as telephone,
+        p.PROV_NAME ||'-'|| c.CITY_NAME as proCityName,
+        'aaa' as userLevelName
+    </sql>
+    <sql id="whereConditions">
+        <where>
+            <trim prefixOverrides="  and" suffixOverrides="  and">
+                <if test="id != null and id != ''">
+                    t.ID = #{id,jdbcType=DECIMAL} and
+                </if>
+                <if test="provCode != null ">
+                    t.PROV_CODE = #{provCode} and
+                </if>
+                <if test="cityCode != null ">
+                    t.CITY_CODE = #{cityCode,jdbcType=DECIMAL} and
+                </if>
+                <if test="roleId != null and roleId != ''">
+                    t.ROLE_ID = #{roleId,jdbcType=DECIMAL} and
+                </if>
+                <if test="userName != null and userName != ''">
+                    t.USER_NAME like '%'||#{userName}||'%' and
+                </if>
+                <if test="realName != null and realName != ''">
+                    t.REAL_NAME like '%'||#{realName}||'%' and
+                </if>
+                <if test="userLevel != null and userLevel != ''">
+                    t.USER_LEVEL = #{userLevel,jdbcType=DECIMAL} and
+                </if>
+                <if test="parentIdStr != null and parentIdStr != ''">
+                    t.PARENT_ID_STR like '%'||#{parentIdStr}||'%' and
+                </if>
+            </trim>
+        </where>
+    </sql>
+    <select id="selectEntitiesTotal"
+            resultType="long"
+            parameterType="com.demo.web.busi.entity.UserVO" >
+        select count(*)
+        from TUSER t
+        left join CHANCT_PROV_INFO p on p.PROV_CODE = t.PROV_CODE
+        left join CHANCT_CITY_INFO c on c.CITY_CODE = t.CITY_CODE
+        left join CHANCT_ROLE r on r.ID = T.ROLE_ID
+        <include refid="whereConditions"/>
+    </select>
+    <select id="selectEntities"
+            resultType="com.demo.web.busi.entity.UserVO"
+            parameterType="com.demo.web.busi.entity.UserVO">
+        select
+        <include refid="Base_Column_List"/>
+        from TUSER t
+        left join CHANCT_PROV_INFO p on p.PROV_CODE = t.PROV_CODE
+        left join CHANCT_CITY_INFO c on c.CITY_CODE = t.CITY_CODE
+        left join CHANCT_ROLE r on r.ID = T.ROLE_ID
+        <include refid="whereConditions"/>
+    </select>
+    <!-- 根据用户名查询用户信息 -->
+    <select id="selectEntityByName"
+            resultType="com.demo.web.busi.entity.UserVO"
+            parameterType="com.demo.web.busi.entity.UserVO" >
+        select
+        <include refid="Base_Column_List"/>
+        from TUSER t
+        left join CHANCT_PROV_INFO p on p.PROV_CODE = t.PROV_CODE
+        left join CHANCT_CITY_INFO c on c.CITY_CODE = t.CITY_CODE
+        left join CHANCT_ROLE r on r.ID = T.ROLE_ID
+        where t.USER_NAME = #{userName}
+    </select>
+
+    <!-- 根据用户名查询用户信息 -->
+    <select id="selectEntityById"
+            resultType="com.demo.web.busi.entity.UserVO"
+            parameterType="com.demo.web.busi.entity.UserVO" >
+        select
+        <include refid="Base_Column_List"/>
+        from TUSER t
+        left join CHANCT_PROV_INFO p on p.PROV_CODE = t.PROV_CODE
+        left join CHANCT_CITY_INFO c on c.CITY_CODE = t.CITY_CODE
+        left join CHANCT_ROLE r on r.ID = T.ROLE_ID
+        where t.id = #{id}
+    </select>
+
+
+    <insert id="insertEntity" parameterType="com.demo.web.busi.entity.UserVO">
+        <selectKey resultType="long" keyProperty="id" order="BEFORE">
+            select SEQ_CHANCT_USER.nextval as id from dual
+        </selectKey>
+        insert into TUSER
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">ID,</if>
+            <if test="email != null">EMAIL,</if>
+            <if test="remark != null">REMARK,</if>
+            <if test="roleId != null">ROLE_ID,</if>
+            <if test="status != null">STATUS,</if>
+            <if test="userName != null">USER_NAME,</if>
+            <if test="realName != null">REAL_NAME,</if>
+            <if test="password != null">PASSWORD,</if>
+            <if test="provCode != null">PROV_CODE,</if>
+            <if test="cityCode != null">CITY_CODE,</if>
+            <if test="userLevel != null">USER_LEVEL,</if>
+            <if test="telephone != null">TELEPHONE,</if>
+            <if test="parentIdStr != null">PARENT_ID_STR,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="email != null">#{email},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="roleId != null">#{roleId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="realName != null">#{realName},</if>
+            <if test="password != null">#{password},</if>
+            <if test="provCode != null">#{provCode},</if>
+            <if test="cityCode != null">#{cityCode},</if>
+            <if test="userLevel != null">#{userLevel},</if>
+            <if test="telephone != null">#{telephone},</if>
+            <if test="parentIdStr != null">#{parentIdStr},</if>
+        </trim>
+    </insert>
+
+    <delete id="deleteEntityById" parameterType="com.demo.web.busi.entity.UserVO">
+        DELETE FROM TUSER where ID = #{id}
+    </delete>
+
+    <update id="updateEntity" parameterType="com.demo.web.busi.entity.UserVO">
+        update TUSER
+        <set>
+            <if test="email != null">EMAIL = #{email},</if>
+            <if test="remark != null">REMARK = #{remark},</if>
+            <if test="roleId != null">ROLE_ID = #{roleId},</if>
+            <if test="status != null">STATUS = #{status},</if>
+            <if test="userName != null">USER_NAME = #{userName},</if>
+            <if test="realName != null">REAL_NAME = #{realName},</if>
+            <if test="provCode != null">PROV_CODE = #{provCode},</if>
+            <if test="cityCode != null">CITY_CODE = #{cityCode},</if>
+            <if test="userLevel != null">USER_LEVEL = #{userLevel},</if>
+            <if test="telephone != null">TELEPHONE = #{telephone},</if>
+            <if test="password != null and password != ''">PASSWORD = #{password},</if>
+        </set>
+        <where>
+            ID = #{id,jdbcType=DECIMAL}
+        </where>
+    </update>
+
+</mapper>
